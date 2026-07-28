@@ -96,7 +96,14 @@ def spread_return(
       long_strike < S < short_strike:        short leg ITM, long leg OTM -> P&L = credit - (short_strike - S)
       S <= long_strike:                      both legs ITM -> P&L = credit - W (capped loss)
 
-    R(S) = P&L(S) / W, i.e. return on the max-risk capital tied up in the spread.
+    R(S) = P&L(S) / (W - C), i.e. return on the max-risk capital tied up in
+    the spread. Max risk is W - C (width minus the credit already collected),
+    NOT the width itself -- W is the distance between strikes, not the amount
+    of your own capital actually on the line. Dividing by W instead of (W - C)
+    understates the return per dollar truly at risk, which biases the
+    downstream Kelly fraction upward (this was a real bug in an earlier
+    version: it inflated f* by a factor of W/(W-C), ~1.4x for the paper's
+    GS worked example).
 
     Width is deliberately NOT a separate parameter: it's mathematically
     determined by the two strikes (W = short_strike - long_strike), never an
@@ -126,7 +133,7 @@ def spread_return(
                          Must be strictly between 0 and the strike width.
 
     Returns:
-        R(S): P&L(S) / W, dimensionless return on max-risk capital.
+        R(S): P&L(S) / (W - C), dimensionless return on max-risk capital.
         Same shape as terminal_price (scalar in, scalar out; array in, array out).
 
     Raises:
@@ -144,6 +151,8 @@ def spread_return(
             "for a real credit spread — check you passed per-share, not total-contract, dollars"
         )
 
+    max_risk = width - credit
+
     pnl = np.where(
         terminal_price >= short_strike,
         credit,
@@ -154,7 +163,7 @@ def spread_return(
         ),
     )
 
-    return pnl / width
+    return pnl / max_risk
 
 
 def growth_rate(kelly_fraction: float, simulated_returns: np.ndarray) -> float:
@@ -348,7 +357,7 @@ def main() -> None:
 
     # Case 2: subjective realized vol -- the actual defensible-edge case
     subjective_result = run_kelly_case(
-        volatility=0.313, label="Subjective-vol case", expected_f_star="~0.11", **common_args,
+        volatility=0.313, label="Subjective-vol case", expected_f_star="~0.075", **common_args,
     )
     print(f"  Half-Kelly = {subjective_result.half_kelly:.3f}   Quarter-Kelly = {subjective_result.quarter_kelly:.3f}")
 

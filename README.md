@@ -17,7 +17,7 @@ Live chain data, 2026-07-20. Short $1000 put / long $990 put, credit $2.90/share
 | Case | σ used | f* | Result |
 |---|---|---|---|
 | Market's own implied vol (35.0%) | Risk-neutral | **≈ 0.000** | Confirms the Fundamental Theorem of Asset Pricing: no edge, size nothing |
-| Subjective realized vol (31.3%) | Genuine VRP edge | **≈ 0.075** | Full Kelly ≈ 7.5% of book; **half-Kelly ≈ 3.8% (≈53 contracts)**, **quarter-Kelly ≈ 1.9% (≈26 contracts)**, on a $1M income sleeve |
+| Subjective realized vol (31.3%) | Genuine VRP edge | **≈ 0.080** | Full Kelly ≈ 8.0% of book; **half-Kelly ≈ 4.0% (≈56 contracts)**, **quarter-Kelly ≈ 2.0% (≈28 contracts)**, on a $1M income sleeve |
 
 ![Kelly growth rate g(f), full/half/quarter-Kelly marked](kelly_growth_curve.png)
 
